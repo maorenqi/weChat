@@ -420,8 +420,55 @@ App({
 	console.log(extConfig)
 	
 	
+	/* 
+	*开放接口
+	*/
+	//wx.login(OBJECT)  调用接口获取登录凭证（code）进而换取用户登录态信息。唯一标识及会话密钥
+	onLanch:function(){
+		wx.login({
+			success:function(res){
+				if(res.code){
+					wx.request({
+						url:'https://test.com/onlogin',
+						data:{
+							code:res.code
+						}
+					})
+				}else{
+					console.log('获取用户登录态失败！' + res.errMsg)
+				}
+			}
+		});		
+	},
+	
+	//如何获取登录凭证？https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code
+	
+	//wx.checkSession(OBJECT)  接口检测当前用户登录态是否有效
+	wx.checkSession({
+		success:function(){
+			//session 未过期，并且在本生命周期一直有效
+		},
+		fail:function(){
+			//登录太过期
+			wx.login() //重新登录
+			...
+		}
+	}),
 	
 	
+	/* 
+	*登录时序：
+	*1、用户打开小程序，启动后执行wx.login()获取code
+	*2、成功后wx.request()发送code到第三方服务器，执行接口https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code，填写正确的微信信息(appid+appsecret+code)用于code2session，发送到微信 服务器端，如果正确返回openid+session_key到第三方服务器，生成3rd_session。
+	*3、第三方服务器端以3rd_session为key,session_key+openid为value写入session存储。
+	*4、把3rd_session发送到客户端
+	*5、客户端将3rd_session存入storage
+	*6、用户使用小程序时从storage读取3rd_session，wx.request()带上3rd_session发送到第三方服务。
+	*7、根据3rd_session在session存储中查找合法的openid和session_key
+	*/
+	
+	//用户数据的签名验证和加解密
+	//wx.getUserInfo,返回rawData、signature,其中signature = sha1(rawData+session_key)
 	
 	
 	
