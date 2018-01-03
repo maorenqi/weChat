@@ -467,9 +467,31 @@ App({
 	*7、根据3rd_session在session存储中查找合法的openid和session_key
 	*/
 	
+	/* 提前向用户发起授权请求
+	wx.authorize(OBJECT) */
+	wx.getSetting({
+		success(res){
+			if(!res.authSetting['scope.record']){
+				wx.authorize({
+					scope:'scope.record',
+					success(){
+						
+					}
+				})
+			}
+		}
+	}),
+	
+	wx.getSetting()//获取用户的当前设置。
+	wx.openSetting()//调起客户端小程序设置界面，返回用户设置的操作结果。
+	wx.authroize()
+	
+	
 	//用户数据的签名验证和加解密
 	//wx.getUserInfo,返回rawData、signature,其中signature = sha1(rawData+session_key)
+	wx.getUserInfo()//获取用户信息
 	
+	getPhoneNumber() //获取微信用户绑定的手机号，需先调用login接口。
 	
-	
+	wx.requestPayment()//发起微信支付
 })
